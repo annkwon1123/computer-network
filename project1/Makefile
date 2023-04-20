@@ -1,1 +1,1 @@
-obj-y := server.o, client.o
+obj-y := server.o
