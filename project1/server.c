@@ -60,7 +60,7 @@ int main() {
             perror("[ERR] open");
             exit(1);
         }
-
+	
         int num_bytes = 0;
         while((num_bytes = read(fd, request, MSG_SIZE)) > 0) {
             if(write(new_fd, request, num_bytes) == -1) {
