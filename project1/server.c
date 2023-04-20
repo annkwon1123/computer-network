@@ -56,16 +56,21 @@ int main() {
 		}
 
 		int fd = 0;
-		if(fd = open("/html.html", O_RDONLY)  == -1) {
-        	perror("[ERR] open");
-        	exit(1);
-    	}
+        if((fd = open("/html.html"+1, O_RDONLY)) == -1) {
+            perror("[ERR] open");
+            exit(1);
+        }
 
-		int num_bytes = 0;
-		while((num_bytes = read(fd, request, MSG_SIZE)) > 0) {
-			write(fd, request, num_bytes);
-		}
-	}
+        int num_bytes = 0;
+        while((num_bytes = read(fd, request, MSG_SIZE)) > 0) {
+            if(write(new_fd, request, num_bytes) == -1) {
+                perror("[ERR] write");
+                exit(1);
+            }
+        }
+        close(fd);
+        close(new_fd);
+    }
 }
 
 
