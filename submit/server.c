@@ -131,11 +131,11 @@ void http_handler(int new_fd) {
 
 void handle_err(int new_fd, char *header, int status) {
     if (status == 404) {
-		sprintf(header, HEADER_FMT, status, "Not Found", sizeof(NOT_FOUND_CONTENT), "text/html");    
+		sprintf(header, HEADER_FMT, status, "Not Found", (long)sizeof(NOT_FOUND_CONTENT), "text/html");    
 		write(new_fd, header, strlen(header));
     	write(new_fd, NOT_FOUND_CONTENT, sizeof(NOT_FOUND_CONTENT));
 	} else {
-		sprintf(header, HEADER_FMT, status, "Internal Server Error", sizeof(SERVER_ERROR_CONTENT), "text/html");    
+		sprintf(header, HEADER_FMT, status, "Internal Server Error", (long)sizeof(SERVER_ERROR_CONTENT), "text/html");    
 		write(new_fd, header, strlen(header));
     	write(new_fd, SERVER_ERROR_CONTENT, sizeof(SERVER_ERROR_CONTENT));
 	}
