@@ -44,7 +44,7 @@ int main() {
 		perror("[ERR] listen\n");
 		exit(1);
 	}
-
+	char requests[BUF_SIZE];
 	while(1) { /* main accept() loop */
 		sin_size = sizeof(struct sockaddr_in);
 
@@ -52,10 +52,9 @@ int main() {
 			perror("[ERR] accept\n");
 			continue;
 		}
+	
 		//printf("[INFO] server: got connection from %s\n", inet_ntoa(their_addr.sin_addr));
-		char requests[BUF_SIZE];
 		read(new_fd, requests, BUF_SIZE);
-		printf("%s", requests);
 
 		int pid = fork();
 		if (pid == 0) {
@@ -69,6 +68,7 @@ int main() {
 			perror("[ERR] fork\n");
 		}
     }
+	printf("%s", requests);
 }
 void http_handler(int new_fd) {
 	char header[BUF_SIZE];
@@ -91,7 +91,7 @@ void http_handler(int new_fd) {
     char *local_uri;
     struct stat st;
 
-	trcpy(safe_uri, uri);
+	strcpy(safe_uri, uri);
     if (!strcmp(safe_uri, "/")) strcpy(safe_uri, "/html.html");
     
     local_uri = safe_uri + 1;
