@@ -20,8 +20,7 @@ void fill_header(char *header, int status, long len, char *type);
 void find_mime(char *ct_type, char *uri);
 
 int main(int argc, char **argv) {
-	if (argc < 2)
-        exit(0);
+	if (argc < 2) exit(0);
     int port = atoi(argv[1]);
 
 	int sock_fd, new_fd; /* listen on sock_fd, new connection on new_fd */
@@ -87,7 +86,7 @@ void http_handler(int new_fd) {
 	char *method = strtok(buf, " ");
     char *uri = strtok(NULL, " ");
     if (method == NULL || uri == NULL) {
-        perror("[ERR] Failed to identify method, URI.\n");
+        perror("[ERR] URI\n");
         return;
     }
 
