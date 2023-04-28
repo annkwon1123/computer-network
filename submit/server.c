@@ -26,7 +26,6 @@ int main(int argc, char **argv) {
 
 	int sock_fd, new_fd; /* listen on sock_fd, new connection on new_fd */
 	struct sockaddr_in my_addr; /* my address */
-	struct sockaddr_in their_addr; /* connector address */
 	socklen_t sin_size;
 
 	if ((sock_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
