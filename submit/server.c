@@ -13,15 +13,14 @@
 
 #define BACKLOG 10 /* how many pendinf connections queue will hold */
 #define BUF_SIZE 1024
-#define CONTENT_LEN 36L
-#define CONTENT_TYPE "text/html"
 
 #define HEADER_FMT "HTTP/1.1 %d %s\nContent-Length: %ld\nContent-Type: %s\n\n"
+#define PORT_CONTENT "<h1>myserver's port number is %d</h1>\n"
 #define NOT_FOUND_CONTENT       "<h1>404 Not Found</h1>\n"
 #define SERVER_ERROR_CONTENT    "<h1>500 Internal Server Error</h1>\n"
 
 void http_handler(int new_fd);
-void handle_stat(int new_fd, char *header, int status, long len, char *type);
+void handle_err(int new_fd, char *header, int status);
 void find_mime(char *ct_type, char *uri);
 
 int main(int argc, char **argv) {
@@ -52,7 +51,9 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	signal(SIGCHLD, SIG_IGN);
+	char header[BUF_SIZE];
+	sprintf(header, PORT_CONTENT, port);    
+	write(new_fd, header, strlen(header));
 
 	while(1) { /* main accept() loop */
 		sin_size = sizeof(struct sockaddr_in);
@@ -83,7 +84,7 @@ void http_handler(int new_fd) {
 
 	if(read(new_fd, buf, BUF_SIZE) == -1) {
 		perror("[ERR] read request\n");
-		handle_stat(new_fd, header, 500, CONTENT_LEN, CONTENT_TYPE);
+		handle_err(new_fd, header, 500);
 		return;
 	}
 	printf("%s", buf);
@@ -92,7 +93,7 @@ void http_handler(int new_fd) {
     char *uri = strtok(NULL, " ");
     if (method == NULL || uri == NULL) {
         perror("[ERR] URI\n");
-		handle_stat(new_fd, header, 500, CONTENT_LEN, CONTENT_TYPE);
+		handle_err(new_fd, header, 500);
         return;
     }
 
@@ -106,45 +107,38 @@ void http_handler(int new_fd) {
     local_uri = safe_uri + 1;
 	if (stat(local_uri, &st) < 0) {
         perror("[WARN] No file found matching URI.\n");
-        handle_stat(new_fd, header, 404, CONTENT_LEN, CONTENT_TYPE); 
+        handle_err(new_fd, header, 404); 
 		return;
     }
 
     int fd = open(local_uri, O_RDONLY);
     if (fd < 0) {
         perror("[ERR] open file\n");
-		handle_stat(new_fd, header, 500, CONTENT_LEN, CONTENT_TYPE);
+		handle_err(new_fd, header, 500);
         return;
     }
 	
-	int ct_len = st.st_size;
+	int ct_len = st.st_size; 
     char ct_type[40];
     find_mime(ct_type, local_uri);
-	handle_stat(new_fd, header, 200, ct_len, ct_type);
+	sprintf(header, HEADER_FMT, 200, "OK", ct_len, ct_type);
+	write(new_fd, header, strlen(header));
 
     int cnt;
     while ((cnt = read(fd, buf, BUF_SIZE)) > 0)
         write(new_fd, buf, cnt);
 }
 
-void handle_stat(int new_fd, char *header, int status, long len, char *type) {
-    char status_text[40];
-    switch (status) {
-        case 200: 
-            strcpy(status_text, "OK"); break;
-        case 404:
-            strcpy(status_text, "Not Found"); 
-			//write(new_fd, NOT_FOUND_CONTENT, sizeof(NOT_FOUND_CONTENT));
-			break;
-        case 500:
-        default:
-            strcpy(status_text, "Internal Server Error"); 
-			
-			break;
-    }
-    sprintf(header, HEADER_FMT, status, status_text, len, type);
-	write(new_fd, header, strlen(header));
-	write(new_fd, SERVER_ERROR_CONTENT, sizeof(SERVER_ERROR_CONTENT));
+void handle_err(int new_fd, char *header, int status) {
+    if (status == 404) {
+		sprintf(header, HEADER_FMT, status, "Not Found", sizeof(NOT_FOUND_CONTENT), "text/html");    
+		write(new_fd, header, strlen(header));
+    	write(new_fd, NOT_FOUND_CONTENT, sizeof(NOT_FOUND_CONTENT));
+	} else {
+		sprintf(header, HEADER_FMT, status, "Internal Server Error", sizeof(SERVER_ERROR_CONTENT), "text/html");    
+		write(new_fd, header, strlen(header));
+    	write(new_fd, SERVER_ERROR_CONTENT, sizeof(SERVER_ERROR_CONTENT));
+	}
 }
 
 void find_mime(char *ct_type, char *uri) {
