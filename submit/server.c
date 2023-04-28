@@ -26,6 +26,7 @@ int main(int argc, char **argv) {
 
 	int sock_fd, new_fd; /* listen on sock_fd, new connection on new_fd */
 	struct sockaddr_in my_addr; /* my address */
+	struct sockaddr_in their_addr; /* connector address */
 	socklen_t sin_size;
 
 	if ((sock_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
@@ -46,7 +47,7 @@ int main(int argc, char **argv) {
 		perror("[ERR] listen\n");
 		exit(1);
 	}
-	// char requests[BUF_SIZE];
+	
 	while(1) { /* main accept() loop */
 		sin_size = sizeof(struct sockaddr_in);
 
@@ -69,8 +70,8 @@ int main(int argc, char **argv) {
 			perror("[ERR] fork\n");
 		}
     }
-	// printf("%s", requests);
 }
+
 void http_handler(int new_fd) {
 	char header[BUF_SIZE];
 	char buf[BUF_SIZE];
