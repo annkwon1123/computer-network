@@ -30,14 +30,8 @@ $(HTML_OBJ): $(HTML_SRC)
     @echo "HTML file is ready."
     touch $@
 
-$(CSS_OBJ): $(CSS_SRC)
-    $(CC) $(CFLAGS) -c $< -o $@
-
-$(JS_OBJ): $(JS_SRC)
-    $(CC) $(CFLAGS) -c $< -o $@
-
 clean:
-    rm -f $(TARGET) $(SERVER_OBJ) $(HTML_OBJ) $(CSS_OBJ) $(JS_OBJ)
+    rm -f $(TARGET) $(SERVER_OBJ) $(HTML_OBJ)
     @echo "Web server is clean."
 
 .PHONY: all clean

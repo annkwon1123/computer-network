@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 		int pid = fork();
 		if (pid == 0) {
 			close(sock_fd); http_handler(new_fd); close(new_fd);
-			exit(1);
+			exit(0);
 		}
 		if (pid != 0) {
 			close(new_fd);
@@ -103,6 +103,10 @@ void http_handler(int new_fd) {
 	stat(local_uri, &st);
 
     int fd = open(local_uri, O_RDONLY);
+    if (fd < 0) {
+        perror("[ERR] open file\n");
+        return;
+    }
 
 	int ct_len = st.st_size;
     char ct_type[40];
