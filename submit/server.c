@@ -103,10 +103,6 @@ void http_handler(int new_fd) {
 	stat(local_uri, &st);
 
     int fd = open(local_uri, O_RDONLY);
-    if (fd < 0) {
-        perror("[ERR] open file\n");
-        return;
-    }
 
 	int ct_len = st.st_size;
     char ct_type[40];
