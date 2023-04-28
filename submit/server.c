@@ -48,6 +48,8 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
+	signal(SIGCHLD, SIG_IGN);
+
 	while(1) { /* main accept() loop */
 		sin_size = sizeof(struct sockaddr_in);
 
@@ -63,7 +65,7 @@ int main(int argc, char **argv) {
 			close(sock_fd); http_handler(new_fd); close(new_fd);
 			exit(1);
 		}
-		if (pid > 0) {
+		if (pid != 0) {
 			close(new_fd);
 		}
 		if (pid < 0) {
@@ -98,10 +100,13 @@ void http_handler(int new_fd) {
     if (!strcmp(safe_uri, "/")) strcpy(safe_uri, "/html.html");
     
     local_uri = safe_uri + 1;
-	stat(local_uri, &st);
+	if (stat(local_uri, &st) < 0) {
+        perror("[ERR] URI\n");
+        return;
+    }
 
-	int fd = open(local_uri, O_RDONLY);
-    if(fd == -1) {
+    int fd = open(local_uri, O_RDONLY);
+    if (fd < 0) {
         perror("[ERR] open file\n");
         return;
     }
