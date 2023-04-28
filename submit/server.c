@@ -67,7 +67,7 @@ int main() {
 }
 void http_handler(int new_fd) {
 	char header[BUF_SIZE];
-    char buf[BUF_SIZE];
+	char buf[BUF_SIZE];
 
 	struct stat st;
 	char *local_uri = "/html.html" +1;
@@ -96,10 +96,7 @@ void http_handler(int new_fd) {
 
     int cnt;
     while ((cnt = read(fd, buf, BUF_SIZE)) > 0)
-        if(write(new_fd, buf, cnt) == -1) {
-			perror("[ERR] write");
-			return;
-		}
+        write(new_fd, buf, cnt);
 }
 
 void find_mime(char *ct_type, char *uri) {
