@@ -48,6 +48,8 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 	
+	signal(SIGCHLD, SIG_IGN);
+
 	while(1) { /* main accept() loop */
 		sin_size = sizeof(struct sockaddr_in);
 
