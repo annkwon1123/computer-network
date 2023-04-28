@@ -71,14 +71,28 @@ void http_handler(int new_fd) {
 	char header[BUF_SIZE];
 	char buf[BUF_SIZE];
 
-	struct stat st;
-	char *local_uri = "/html.html" +1;
-
 	if(read(new_fd, buf, BUF_SIZE) == -1) {
 		perror("[ERR] read request\n");
 		return;
 	}
 
+	char *method = strtok(buf, " ");
+    char *uri = strtok(NULL, " ");
+    if (method == NULL || uri == NULL) {
+        perror("[ERR] Failed to identify method, URI.\n");
+        return;
+    }
+
+	printf("[INFO] Handling Request: method=%s, URI=%s\n", method, uri);
+    
+    char safe_uri[BUF_SIZE];
+    char *local_uri;
+    struct stat st;
+
+	trcpy(safe_uri, uri);
+    if (!strcmp(safe_uri, "/")) strcpy(safe_uri, "/html.html");
+    
+    local_uri = safe_uri + 1;
 	if (stat(local_uri, &st) < 0) {
         perror("[WARN] No file found matching URI.\n");
         return;
