@@ -16,8 +16,8 @@
 
 #define HEADER_FMT "HTTP/1.1 %d %s\nContent-Length: %ld\nContent-Type: %s\n\n"
 #define PORT_CONTENT "<h1>myserver's port number is %d</h1>\n"
-#define NOT_FOUND_CONTENT "<h1>404 Not Found</h1>\n"
-#define SERVER_ERROR_CONTENT "<h1>500 Internal Server Error</h1>\n"
+#define NOT_FOUND_CONTENT      "<h1>404 Not Found</h1>\n"
+#define SERVER_ERROR_CONTENT    "<h1>500 Internal Server Error</h1>\n"
 
 void http_handler(int new_fd);
 void handle_err(int new_fd, char *header, int status);
@@ -130,12 +130,17 @@ void http_handler(int new_fd) {
 }
 
 void handle_err(int new_fd, char *header, int status) {
+	long len;
     if (status == 404) {
-		sprintf(header, NOT_FOUND_CONTENT, "text/html");    
+		len = sizeof(NOT_FOUND_CONTENT);
+		sprintf(header, HEADER_FMT, status, "Not Found", len, "text/html");    
 		write(new_fd, header, strlen(header));
+    	write(new_fd, NOT_FOUND_CONTENT, sizeof(NOT_FOUND_CONTENT));
 	} else {
-		sprintf(header, SERVER_ERROR_CONTENT, "text/html");    
+		len = sizeof(SERVER_ERROR_CONTENT);
+		sprintf(header, HEADER_FMT, status, "Internal Server Error", len, "text/html");    
 		write(new_fd, header, strlen(header));
+    	write(new_fd, SERVER_ERROR_CONTENT, sizeof(SERVER_ERROR_CONTENT));
 	}
 }
 
