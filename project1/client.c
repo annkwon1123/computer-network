@@ -37,7 +37,7 @@ int main() {
 				"Host: %s:%d\r\n"
 				"Connection: close\r\n"
 				"\r\n", inet_ntoa(their_addr.sin_addr), PORT);
-
+	
 	if (send (sockfd, message, strlen(message), 0) == -1) {
 		perror("send");
 		exit(1);

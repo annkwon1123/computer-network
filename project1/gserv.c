@@ -46,7 +46,7 @@ int main() {
             perror("[ERR] accept");
             continue;
         }
-
+        
         char request[MSG_SIZE];
         if(read(new_fd, request, MSG_SIZE) == -1) {
             perror("[ERR] read");

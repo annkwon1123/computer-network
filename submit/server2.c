@@ -6,22 +6,22 @@
 #include <netinet/in.h> /* has the sockaddr_in structure */
 #include <sys/socket.h> /* holds address familt and socket functions */ 
 #include <sys/wait.h> 
-#include <sys/stat.h>
-//#include <arpa/inet.h> /* inet_ntoa() functions */
-#include <unistd.h>
-#include <fcntl.h>
+//#include <sys/stat.h> /* stat() function */
+//#include <arpa/inet.h> /* inet_ntoa() function: get the ip address of this machine */
+#include <unistd.h> /* fork() function: make child process */
+#include <fcntl.h> /* open() function: control the file */
 
 #define BACKLOG 10 /* how many pendinf connections queue will hold */
 #define BUF_SIZE 1024
 #define HEADER_FMT "HTTP/1.1 %d %s\nContent-Length: %ld\nContent-Type: %s\n\n"
 
 void http_handler(int new_fd);
-void fill_header(char *header, int status, long len, char *type);
+//void fill_header(char *header, int status, long len, char *type);
 void find_mime(char *ct_type, char *uri);
 
 int main(int argc, char **argv) {
 	if (argc < 2) exit(0);
-    int port = atoi(argv[1]);
+    int port = atoi(argv[1]); /* get the port number */
 	
 	int sock_fd, new_fd; /* listen on sock_fd, new connection on new_fd */
 	struct sockaddr_in my_addr; /* my address */
@@ -79,6 +79,7 @@ void http_handler(int new_fd) {
 
 	if(read(new_fd, buf, BUF_SIZE) == -1) {
 		perror("[ERR] read request\n");
+		
 		return;
 	}
 	printf("%s", buf);
@@ -93,13 +94,13 @@ void http_handler(int new_fd) {
 	//printf("[INFO] Handling Request: method=%s, URI=%s\n", method, uri);
     char safe_uri[BUF_SIZE];
     char *local_uri;
-    struct stat st;
+    //struct stat st;
 
 	strcpy(safe_uri, uri);
     if (!strcmp(safe_uri, "/")) strcpy(safe_uri, "/html.html");
     
     local_uri = safe_uri + 1;
-	stat(local_uri, &st);
+	//stat(local_uri, &st);
 
     int fd = open(local_uri, O_RDONLY);
     if (fd < 0) {
@@ -107,10 +108,10 @@ void http_handler(int new_fd) {
         return;
     }
 
-	int ct_len = st.st_size;
+	//int ct_len = st.st_size;
     char ct_type[40];
     find_mime(ct_type, local_uri);
-	fill_header(header, 200, ct_len, ct_type);
+	//fill_header(header, 200, ct_len, ct_type);
     write(new_fd, header, strlen(header));
 
     int cnt;
@@ -118,19 +119,19 @@ void http_handler(int new_fd) {
         write(new_fd, buf, cnt);
 }
 
-void fill_header(char *header, int status, long len, char *type) {
-    char status_text[40];
-    switch (status) {
-        case 200:
-            strcpy(status_text, "OK"); break;
-        case 404:
-            strcpy(status_text, "Not Found"); break;
-        case 500:
-        default:
-            strcpy(status_text, "Internal Server Error"); break;
-    }
-    sprintf(header, HEADER_FMT, status, status_text, len, type);
-}
+// void fill_header(char *header, int status, long len, char *type) {
+//     char status_text[40];
+//     switch (status) {
+//         case 200:
+//             strcpy(status_text, "OK"); break;
+//         case 404:
+//             strcpy(status_text, "Not Found"); break;
+//         case 500:
+//         default:
+//             strcpy(status_text, "Internal Server Error"); break;
+//     }
+//     sprintf(header, HEADER_FMT, status, status_text, len, type);
+// }
 
 void find_mime(char *ct_type, char *uri) {
     char *ext = strrchr(uri, '.');
