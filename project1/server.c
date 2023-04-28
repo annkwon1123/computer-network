@@ -13,16 +13,19 @@
 
 #define PORT 6560 /* port through which connection is to be madea */
 #define BACKLOG 10 /* how many pendinf connections queue will hold */
-#define MSG_SIZE 1024
+#define BUF_SIZE 1024
+
+void http_handler(int new_fd);
+void find_mime(char *ct_type, char *uri);
 
 int main() {
 	int sock_fd, new_fd; /* listen on sock_fd, new connection on new_fd */
 	struct sockaddr_in my_addr; /* my address */
 	struct sockaddr_in their_addr; /* connector address */
-	int sin_size;
+	socklen_t sin_size;
 
-	if ((sock_fd = socket(PF_INET, SOCK_STREAM, 0)) == -1) {
-		perror("[ERR] socket");
+	if ((sock_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+		perror("[ERR] socket\n");
 		exit(1);
 	}
 
@@ -36,41 +39,83 @@ int main() {
 	}
 
 	if (listen(sock_fd, BACKLOG) == -1) {
-		perror("[ERR] listen");
+		perror("[ERR] listen\n");
 		exit(1);
 	}
 
 	while(1) { /* main accept() loop */
 		sin_size = sizeof(struct sockaddr_in);
+
 		if ((new_fd = accept(sock_fd, (struct sockaddr *) &their_addr, &sin_size)) == -1) {
-			perror("[ERR] accept");
+			perror("[ERR] accept\n");
 			continue;
 		}
-
-		//printf("server: got connection from %s\n", inet_ntoa(their_addr.sin_addr));
+		printf("[INFO] server: got connection from %s\n", inet_ntoa(their_addr.sin_addr));
 		
-		char request[MSG_SIZE];
-		if(read(new_fd, request, MSG_SIZE) == -1) {
-			perror("[ERR] read");
+		int pid = fork();
+		if (pid == 0) {
+			close(sock_fd); http_handler(new_fd); close(new_fd);
 			exit(1);
 		}
-
-		int fd = 0;
-        if((fd = open("/html.html"+1, O_RDONLY)) == -1) {
-            perror("[ERR] open");
-            exit(1);
-        }
-	
-        int num_bytes = 0;
-        while((num_bytes = read(fd, request, MSG_SIZE)) > 0) {
-            if(write(new_fd, request, num_bytes) == -1) {
-                perror("[ERR] write");
-                exit(1);
-            }
-        }
-        close(fd);
-        close(new_fd);
+		if (pid > 0) {
+			close(new_fd);
+		}
+		if (pid < 0) {
+			perror("[ERR] fork\n");
+		}
     }
+}
+void http_handler(int new_fd) {
+	char header[BUF_SIZE];
+    char buf[BUF_SIZE];
+
+	struct stat st;
+	char *local_uri = "/html.html" +1;
+
+	if(read(new_fd, buf, BUF_SIZE) == -1) {
+		perror("[ERR] read request\n");
+		return;
+	}
+
+	if (stat(local_uri, &st) < 0) {
+        perror("[WARN] No file found matching URI.\n");
+        handle_404(new_fd); return;
+    }
+
+	int fd = open(local_uri, O_RDONLY);
+    if(fd == -1) {
+        perror("[ERR] open file\n");
+    	write(new_fd, header, strlen(header));
+        return;
+    }
+
+	int ct_len = st.st_size;
+    char ct_type[40];
+    find_mime(ct_type, local_uri);
+    fill_header(header, 200, ct_len, ct_type);
+    write(new_fd, header, strlen(header));
+
+    int cnt;
+    while ((cnt = read(fd, buf, BUF_SIZE)) > 0)
+        if(write(new_fd, buf, cnt) == -1) {
+			perror("[ERR] write");
+			return;
+		}
+}
+
+void find_mime(char *ct_type, char *uri) {
+    char *ext = strrchr(uri, '.');
+    if (!strcmp(ext, ".html")) 
+        strcpy(ct_type, "text/html");
+    else if (!strcmp(ext, ".jpg") || !strcmp(ext, ".jpeg")) 
+        strcpy(ct_type, "image/jpeg");
+    else if (!strcmp(ext, ".png"))
+        strcpy(ct_type, "image/png");
+    else if (!strcmp(ext, ".css"))
+        strcpy(ct_type, "text/css");
+    else if (!strcmp(ext, ".js"))
+        strcpy(ct_type, "text/javascript");
+    else strcpy(ct_type, "text/plain");
 }
 
 
