@@ -52,8 +52,11 @@ int main() {
 			perror("[ERR] accept\n");
 			continue;
 		}
-		printf("[INFO] server: got connection from %s\n", inet_ntoa(their_addr.sin_addr));
-		
+		//printf("[INFO] server: got connection from %s\n", inet_ntoa(their_addr.sin_addr));
+		char requests[BUF_SIZE];
+		read(new_fd, requests, BUF_SIZE);
+		printf("%s", requests);
+
 		int pid = fork();
 		if (pid == 0) {
 			close(sock_fd); http_handler(new_fd); close(new_fd);
@@ -83,13 +86,12 @@ void http_handler(int new_fd) {
         return;
     }
 
-	printf("[INFO] Handling Request: method=%s, URI=%s\n", method, uri);
-    
+	//printf("[INFO] Handling Request: method=%s, URI=%s\n", method, uri);
     char safe_uri[BUF_SIZE];
     char *local_uri;
     struct stat st;
 
-	strcpy(safe_uri, uri);
+	trcpy(safe_uri, uri);
     if (!strcmp(safe_uri, "/")) strcpy(safe_uri, "/html.html");
     
     local_uri = safe_uri + 1;
