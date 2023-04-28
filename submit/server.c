@@ -11,7 +11,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#define PORT 6560 /* port through which connection is to be madea */
 #define BACKLOG 10 /* how many pendinf connections queue will hold */
 #define BUF_SIZE 1024
 #define HEADER_FMT "HTTP/1.1 %d %s\nContent-Length: %ld\nContent-Type: %s\n\n"
@@ -21,6 +20,8 @@ void fill_header(char *header, int status, long len, char *type);
 void find_mime(char *ct_type, char *uri);
 
 int main() {
+	int port;
+	scanf("input server's port number: %d\n", &port);
 	int sock_fd, new_fd; /* listen on sock_fd, new connection on new_fd */
 	struct sockaddr_in my_addr; /* my address */
 	struct sockaddr_in their_addr; /* connector address */
@@ -32,7 +33,7 @@ int main() {
 	}
 
 	my_addr.sin_family = AF_INET;
-	my_addr.sin_port = htons(PORT); /* short, network byte order */
+	my_addr.sin_port = htons(port); /* short, network byte order */
 	my_addr.sin_addr.s_addr = htonl(INADDR_ANY); /* INADDR_ANY allowws clients to connect to any one of the host's IP address */
 
 	if (bind(sock_fd, (struct sockaddr *)&my_addr, sizeof(struct sockaddr)) == -1) {
