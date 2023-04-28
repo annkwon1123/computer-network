@@ -19,10 +19,11 @@ void http_handler(int new_fd);
 void fill_header(char *header, int status, long len, char *type);
 void find_mime(char *ct_type, char *uri);
 
-int main() {
-	int port;
-	printf("myserver ");
-	scanf("%d\n", &port);
+int main(int argc, char **argv) {
+	if (argc < 2)
+        exit(0);
+    int port = atoi(argv[1]);
+
 	int sock_fd, new_fd; /* listen on sock_fd, new connection on new_fd */
 	struct sockaddr_in my_addr; /* my address */
 	struct sockaddr_in their_addr; /* connector address */
