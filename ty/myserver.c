@@ -59,8 +59,9 @@ void http_handler(int asock) {
 
     if (read(asock, buf, BUF_SIZE) < 0) {
         perror("Failed to read request.\n");
-	return;
+	    return;
     }
+    printf("%s", buf);
 
     char *method = strtok(buf, " ");
     char *uri = strtok(NULL, " ");
@@ -100,24 +101,23 @@ void http_handler(int asock) {
     while ((cnt = read(fd, buf, BUF_SIZE)) > 0){
         write(asock, buf, cnt);
     }
-    printf("%s\n", buf);
 }
 
 
 int main(int argc, char **argv) {
 	int port, pid;
-    	int lsock, asock;
+    int lsock, asock;
 
-    	struct sockaddr_in remote_sin;
-    	socklen_t remote_sin_len;
+    struct sockaddr_in remote_sin;
+    socklen_t remote_sin_len;
 
    	if (argc < 2) {
-       		printf("Usage: \n");
-        	printf("\t%s {port}: runs mini HTTP server.\n", argv[0]);
-        	exit(0);
-    	}
+       	printf("Usage: \n");
+        printf("\t%s {port}: runs mini HTTP server.\n", argv[0]);
+        exit(0);
+    }
 
-    	port = atoi(argv[1]);
+    port = atoi(argv[1]);
 	printf("The server will listen to port: %d.\n", port);
 
 	lsock = socket(AF_INET, SOCK_STREAM, 0);

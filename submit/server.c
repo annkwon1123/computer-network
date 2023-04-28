@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 		perror("[ERR] listen\n");
 		exit(1);
 	}
-	char requests[BUF_SIZE];
+	// char requests[BUF_SIZE];
 	while(1) { /* main accept() loop */
 		sin_size = sizeof(struct sockaddr_in);
 
@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
 			perror("[ERR] fork\n");
 		}
     }
-	printf("%s", requests);
+	// printf("%s", requests);
 }
 void http_handler(int new_fd) {
 	char header[BUF_SIZE];
