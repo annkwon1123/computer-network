@@ -16,6 +16,7 @@
 #define BUF_SIZE 1024
 
 void http_handler(int new_fd);
+void fill_header(char *header, int status, long len, char *type);
 void find_mime(char *ct_type, char *uri);
 
 int main() {
@@ -92,11 +93,26 @@ void http_handler(int new_fd) {
 	int ct_len = st.st_size;
     char ct_type[40];
     find_mime(ct_type, local_uri);
+	fill_header(header, 200, ct_len, ct_type);
     write(new_fd, header, strlen(header));
 
     int cnt;
     while ((cnt = read(fd, buf, BUF_SIZE)) > 0)
         write(new_fd, buf, cnt);
+}
+
+void fill_header(char *header, int status, long len, char *type) {
+    char status_text[40];
+    switch (status) {
+        case 200:
+            strcpy(status_text, "OK"); break;
+        case 404:
+            strcpy(status_text, "Not Found"); break;
+        case 500:
+        default:
+            strcpy(status_text, "Internal Server Error"); break;
+    }
+    sprintf(header, HEADER_FMT, status, status_text, len, type);
 }
 
 void find_mime(char *ct_type, char *uri) {
