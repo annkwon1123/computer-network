@@ -14,6 +14,7 @@
 #define PORT 6560 /* port through which connection is to be madea */
 #define BACKLOG 10 /* how many pendinf connections queue will hold */
 #define BUF_SIZE 1024
+#define HEADER_FMT "HTTP/1.1 %d %s\nContent-Length: %ld\nContent-Type: %s\n\n"
 
 void http_handler(int new_fd);
 void fill_header(char *header, int status, long len, char *type);
