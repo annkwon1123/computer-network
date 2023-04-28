@@ -47,8 +47,6 @@ int main(int argc, char **argv) {
 		perror("[ERR] listen\n");
 		exit(1);
 	}
-	
-	signal(SIGCHLD, SIG_IGN);
 
 	while(1) { /* main accept() loop */
 		sin_size = sizeof(struct sockaddr_in);
@@ -105,7 +103,6 @@ void http_handler(int new_fd) {
 	int fd = open(local_uri, O_RDONLY);
     if(fd == -1) {
         perror("[ERR] open file\n");
-    	write(new_fd, header, strlen(header));
         return;
     }
 
