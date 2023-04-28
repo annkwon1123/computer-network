@@ -89,7 +89,7 @@ void http_handler(int new_fd) {
     char *local_uri;
     struct stat st;
 
-	trcpy(safe_uri, uri);
+	strcpy(safe_uri, uri);
     if (!strcmp(safe_uri, "/")) strcpy(safe_uri, "/html.html");
     
     local_uri = safe_uri + 1;
