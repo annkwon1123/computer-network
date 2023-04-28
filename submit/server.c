@@ -21,7 +21,7 @@ void find_mime(char *ct_type, char *uri);
 
 int main() {
 	int port;
-	print("myserver server ");
+	printf("myserver server ");
 	scanf("%d\n", &port);
 	int sock_fd, new_fd; /* listen on sock_fd, new connection on new_fd */
 	struct sockaddr_in my_addr; /* my address */
