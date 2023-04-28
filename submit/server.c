@@ -95,11 +95,7 @@ void http_handler(int new_fd) {
     if (!strcmp(safe_uri, "/")) strcpy(safe_uri, "/html.html");
     
     local_uri = safe_uri + 1;
-	if (stat(local_uri, &st) < 0) {
-        perror("[WARN] No file found matching URI.\n");
-        return;
-    }
-
+	
 	int fd = open(local_uri, O_RDONLY);
     if(fd == -1) {
         perror("[ERR] open file\n");
