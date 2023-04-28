@@ -54,7 +54,6 @@ int main() {
 		}
 	
 		//printf("[INFO] server: got connection from %s\n", inet_ntoa(their_addr.sin_addr));
-		read(new_fd, requests, BUF_SIZE);
 
 		int pid = fork();
 		if (pid == 0) {
@@ -78,6 +77,7 @@ void http_handler(int new_fd) {
 		perror("[ERR] read request\n");
 		return;
 	}
+	printf("%s", buf);
 
 	char *method = strtok(buf, " ");
     char *uri = strtok(NULL, " ");
