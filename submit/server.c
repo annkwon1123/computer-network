@@ -53,11 +53,13 @@ int main(int argc, char **argv) {
 			perror("[ERR] accept\n");
 			continue;
 		}
+		char header[BUF_SIZE];
+		write_content(new_fd, header, port);
 		/* 프로세스 생성하기 */
 		int pid = fork();
 		if (pid == 0) { /* 자식 프로세스 */
 			close(sock_fd); 
-			http_handler(new_fd); 
+			http_handler(new_fd);
 			close(new_fd);
 			exit(0);
 		}
@@ -108,7 +110,7 @@ void http_handler(int new_fd) {
         return;
     }
 	/* http 형식에 맞춘 헤더 넣기 */
-	int ct_len = st.st_size; 
+	long ct_len = st.st_size; 
     char ct_type[40];
     find_mime(ct_type, local_uri);
 	sprintf(header, HEADER_FMT, 200, "OK", ct_len, ct_type);
@@ -143,7 +145,7 @@ void write_content(int new_fd, char *header, int ct_num) {
 			sprintf(header, HEADER_FMT, 500, "Internal Server Error", len, "text/html"); 
 			break;
 		default:
-			char str[20];
+			char* str;
 			sprintf(str, "%d", ct_num); // integer to string
 			content = strcat("<h1>접속한 서버의 포트 번호: ", str);
 			content = strcat(content, "</h1>\n");
