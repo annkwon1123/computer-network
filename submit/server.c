@@ -53,8 +53,6 @@ int main(int argc, char **argv) {
 			perror("[ERR] accept\n");
 			continue;
 		}
-		char header[BUF_SIZE];
-		write_content(new_fd, header, port);
 		/* 프로세스 생성하기 */
 		int pid = fork();
 		if (pid == 0) { /* 자식 프로세스 */
