@@ -14,6 +14,10 @@
 #define BUF_SIZE 1024
 
 #define HEADER_FMT "HTTP/1.1 %d %s\nContent-Length: %ld\nContent-Type: %s\n\n"
+#define ERR_404 "<h1>404 에러: 찾고자 하는 파일이 없음</h1>\n"
+#define ERR_5001 "<h1>500 에러: http 헤더를 읽어올 수 없음</h1>\n"
+#define ERR_5002 "<h1>500 에러: http 헤더 형식이 맞지 않음</h1>\n"
+#define ERR_5003 "<h1>500 에러: 파일을 열 수 없음</h1>\n"
 
 void http_handler(int new_fd); /* http 내용 받아 오고 쓰기 */
 void write_content(int new_fd, char *header, int content); /* html 파일을 추가로 만들고 쓰기 */
@@ -118,41 +122,31 @@ void http_handler(int new_fd) {
     while ((cnt = read(fd, buf, BUF_SIZE)) > 0)
         write(new_fd, buf, cnt);
 }
+
 void write_content(int new_fd, char *header, int ct_num) {
-	char* content;
-	long len;
-	char* str = "";
 	switch (ct_num) {
 		case 404:
-			content = "<h1>404 에러: 찾고자 하는 파일이 없음</h1>\n";
-			len = sizeof(content);
-			sprintf(header, HEADER_FMT, 404, "Not Found", len, "text/html"); 
+			sprintf(header, HEADER_FMT, ct_num, "Not Found", sizeof(ERR_404), "text/html"); 
+			write(new_fd, header, strlen(header));
+			write(new_fd, ERR_404, sizeof(ERR_404));
 			break;
 		case 5001:
-			content = "<h1>500 에러: http 헤더를 읽어올 수 없음</h1>\n";
-			len = sizeof(content);
-			sprintf(header, HEADER_FMT, 500, "Internal Server Error", len, "text/html"); 
+			sprintf(header, HEADER_FMT, ct_num, "Internal Server Error", sizeof(ERR_5001), "text/html"); 
+			write(new_fd, header, strlen(header));
+			write(new_fd, ERR_5001, sizeof(ERR_5001));
 			break;
 		case 5002:
-			content = "<h1>500 에러: http 헤더 형식이 맞지 않음</h1>\n";
-			len = sizeof(content);
-			sprintf(header, HEADER_FMT, 500, "Internal Server Error", len, "text/html"); 
+			sprintf(header, HEADER_FMT, ct_num, "Internal Server Error", sizeof(ERR_5002), "text/html"); 
+			write(new_fd, header, strlen(header));
+			write(new_fd, ERR_5002, sizeof(ERR_5002));
 			break;
 		case 5003:
-			content = "<h1>500 에러: 파일을 열 수 없음</h1>\n";
-			len = sizeof(content);
-			sprintf(header, HEADER_FMT, 500, "Internal Server Error", len, "text/html"); 
-			break;
 		default:
-			sprintf(str, "%d", ct_num); // integer to string
-			content = strcat("<h1>접속한 서버의 포트 번호: ", str);
-			content = strcat(content, "</h1>\n");
-			len = sizeof(content);
-			sprintf(header, HEADER_FMT, 200, "Port Number", len, "text/html"); 
+			sprintf(header, HEADER_FMT, ct_num, "Internal Server Error", sizeof(ERR_5003), "text/html"); 
+			write(new_fd, header, strlen(header));
+			write(new_fd, ERR_5003, sizeof(ERR_5003));
 			break;
-	}
-	write(new_fd, header, strlen(header));
-	write(new_fd, content, len);
+	};
 }
 
 void find_mime(char *ct_type, char *uri) {
