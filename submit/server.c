@@ -123,6 +123,7 @@ void http_handler(int new_fd) {
 void write_content(int new_fd, char *header, int ct_num) {
 	char* content;
 	long len;
+	char* str = "";
 	switch (ct_num) {
 		case 404:
 			content = "<h1>404 에러: 찾고자 하는 파일이 없음</h1>\n";
@@ -145,7 +146,6 @@ void write_content(int new_fd, char *header, int ct_num) {
 			sprintf(header, HEADER_FMT, 500, "Internal Server Error", len, "text/html"); 
 			break;
 		default:
-			char* str = "";
 			sprintf(str, "%d", ct_num); // integer to string
 			content = strcat("<h1>접속한 서버의 포트 번호: ", str);
 			content = strcat(content, "</h1>\n");
