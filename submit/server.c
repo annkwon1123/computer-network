@@ -145,7 +145,7 @@ void write_content(int new_fd, char *header, int ct_num) {
 			sprintf(header, HEADER_FMT, 500, "Internal Server Error", len, "text/html"); 
 			break;
 		default:
-			char* str;
+			char* str = "";
 			sprintf(str, "%d", ct_num); // integer to string
 			content = strcat("<h1>접속한 서버의 포트 번호: ", str);
 			content = strcat(content, "</h1>\n");
