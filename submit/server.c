@@ -14,10 +14,10 @@
 #define BUF_SIZE 1024
 
 #define HEADER_FMT "HTTP/1.1 %d %s\nContent-Length: %ld\nContent-Type: %s\n\n"
-#define ERR_404 "<meta charset=\"EUC-KR\">\n<h1>404 에러: 찾고자 하는 파일이 없음</h1>\n"
-#define ERR_5001 "<meta charset=\"EUC-KR\">\n<h1>500 에러: http 헤더를 읽어올 수 없음</h1>\n"
-#define ERR_5002 "<meta charset=\"EUC-KR\">\n<h1>500 에러: http 헤더 형식이 맞지 않음</h1>\n"
-#define ERR_5003 "<meta charset=\"EUC-KR\">\n<h1>500 에러: 파일을 열 수 없음</h1>\n"
+#define ERR_404 "<h1>404 Can't find file</h1>\n"
+#define ERR_5001 "<h1>500 Can't read HTTP header</h1>\n"
+#define ERR_5002 "<h1>500 HTTP header formet doesn't match</h1>\n"
+#define ERR_5003 "<h1>500 Can't open file/h1>\n"
 
 void http_handler(int new_fd); /* http 내용 받아 오고 쓰기 */
 void write_content(int new_fd, char *header, int content); /* html 파일을 추가로 만들고 쓰기 */
@@ -97,7 +97,7 @@ void http_handler(int new_fd) {
 	char safe_uri[BUF_SIZE];
     char *local_uri;
     struct stat st;
-	
+
 	strcpy(safe_uri, uri);
     if (!strcmp(safe_uri, "/")) strcpy(safe_uri, "/html.html");
     local_uri = safe_uri + 1;
